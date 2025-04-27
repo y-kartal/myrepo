@@ -1,11 +1,11 @@
 pipeline {
     agent any
     environment {
-        DOCKER_IMAGE = 'y-kartal/myapp'
-        DOCKER_TAG = 'v1.0.${BUILD_NUMBER}'
-        DOCKER_REGISTRY_CREDENTIALS = 'dockerhub-credentials'
-        GIT_CREDENTIALS = 'github-credentials'
-        HELM_CHART_NAME = 'my-helm-chart'
+        DOCKER_IMAGE = 'y-kartal/myapp'  // DockerHub kullanıcı adına göre değiştir
+        DOCKER_TAG = "v1.0.${env.BUILD_NUMBER}" // DOĞRU: Çift tırnak ve env.BUILD_NUMBER kullanılıyor
+        DOCKER_REGISTRY_CREDENTIALS = 'dockerhub-credentials' // Jenkins'te tanımladığımız credential ID
+        GIT_CREDENTIALS = 'github-credentials' // GitHub erişimi için tanımladığın credential ID
+        HELM_CHART_NAME = 'my-helm-chart' // charts klasöründeki chart adı
     }
     stages {
         stage('Checkout Code') {
@@ -16,7 +16,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    docker.withRegistry('', "${DOCKER_REGISTRY_CREDENTIALS}") {
+                    docker.withRegistry('https://index.docker.io/v1/', "${DOCKER_REGISTRY_CREDENTIALS}") {
                         def app = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
                         app.push()
                     }
@@ -38,10 +38,10 @@ pipeline {
     }
     post {
         success {
-            echo 'Deployment completed successfully!'
+            echo '✅ Deployment completed successfully!'
         }
         failure {
-            echo 'Deployment failed!'
+            echo '❌ Deployment failed!'
         }
     }
 }
