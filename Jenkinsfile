@@ -1,11 +1,11 @@
 pipeline {
     agent any
     environment {
-        DOCKER_IMAGE = 'y-kartal/myapp'  // DockerHub kullanıcı adına göre değiştir
-        DOCKER_TAG = "v1.0.${env.BUILD_NUMBER}" // DOĞRU: Çift tırnak ve env.BUILD_NUMBER kullanılıyor
-        DOCKER_REGISTRY_CREDENTIALS = 'dockerhub-credentials' // Jenkins'te tanımladığımız credential ID
-        GIT_CREDENTIALS = 'github-credentials' // GitHub erişimi için tanımladığın credential ID
-        HELM_CHART_NAME = 'my-helm-chart' // charts klasöründeki chart adı
+        DOCKER_IMAGE = 'yasinkartal/myapp' // ✅ DockerHub username doğru
+        DOCKER_TAG = "v1.0.${env.BUILD_NUMBER}" // ✅ BUILD_NUMBER kullanımı doğru
+        DOCKER_REGISTRY_CREDENTIALS = 'dockerhub-credentials' // ✅ Jenkins içindeki credential ID
+        GIT_CREDENTIALS = 'github-credentials' // ✅ Jenkins içindeki GitHub credential ID
+        HELM_CHART_NAME = 'my-helm-chart' // ✅ Helm chart adı
     }
     stages {
         stage('Checkout Code') {
