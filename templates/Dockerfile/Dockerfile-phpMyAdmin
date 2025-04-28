@@ -1,0 +1,9 @@
+# Dockerfile for phpMyAdmin
+FROM phpmyadmin:5.1
+
+# Optional: Add custom configuration, scripts, or other dependencies
+# Example: Copy custom config file
+# COPY config.inc.php /etc/phpmyadmin/config.inc.php
+
+# Expose the default port
+EXPOSE 80

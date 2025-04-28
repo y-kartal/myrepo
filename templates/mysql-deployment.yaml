@@ -4,7 +4,7 @@ metadata:
   name: mysql-deployment
   namespace: {{ .Values.mysql_ns }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.mysql.replicaCount }}
   selector:
     matchLabels:
       app: mysql
@@ -15,20 +15,19 @@ spec:
     spec:
       containers:
         - name: mysql
-          image: mysql:8
+          image: {{ .Values.mysql.image }}
           env:
             - name: MYSQL_DATABASE
-              value: test
+              value: {{ .Values.mysql.mysqlDatabase }}
             - name: TZ
-              value: Europe/Istanbul
+              value: {{ .Values.mysql.mysqlTimezone }}
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: mysql-secret
                   key: password
           ports:
-          - containerPort: 3306
-          resources: {}
+            - containerPort: 3306
           volumeMounts:
             - name: mysql-data
               mountPath: "/var/lib/mysql"

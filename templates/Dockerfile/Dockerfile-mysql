@@ -1,0 +1,9 @@
+# Dockerfile for MySQL
+FROM mysql:8
+
+# Optional: Add custom MySQL configurations or scripts
+# Example: Copy custom my.cnf configuration
+# COPY my.cnf /etc/mysql/my.cnf
+
+# Expose MySQL port
+EXPOSE 3306

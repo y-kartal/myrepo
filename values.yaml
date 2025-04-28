@@ -1,2 +1,15 @@
-mysql_ns : "mysql-test"
-pma_url : "localhost"
+mysql_ns: "mysql-test"
+
+mysql:
+  image: yasinkartal/mysql:latest
+  replicaCount: 1
+  mysqlDatabase: test
+  mysqlRootPassword: <secret>
+  mysqlTimezone: Europe/Istanbul
+
+phpmyadmin:
+  image: yasinkartal/phpmyadmin:latest
+  replicaCount: 1
+  pmaHost: mysql
+  pmaPort: 3306
+  pmaUrl: "localhost"

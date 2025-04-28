@@ -1,0 +1,70 @@
+pipeline {
+    agent any
+
+    environment {
+        // DockerHub ve GitHub kimlik bilgileri
+        DOCKER_HUB_CREDENTIALS = 'dockerhub-credentials'
+        GITHUB_CREDENTIALS = 'github-credentials'
+        DOCKER_IMAGE_MYSQL = "yasinkartal/mysql:latest"
+        DOCKER_IMAGE_PMA = "yasinkartal/phpmyadmin:latest"
+        CHART_DIR = './'  // Helm chart dosyanızın yolu
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // GitHub deposundan kodu çekme
+                checkout scm
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                script {
+                    // MySQL Docker imajını oluşturma
+                    sh 'docker build -t ${DOCKER_IMAGE_MYSQL} -f templates/Dockerfile/Dockerfile-mysql .'
+                    // phpMyAdmin Docker imajını oluşturma
+                    sh 'docker build -t ${DOCKER_IMAGE_PMA} -f templates/Dockerfile/Dockerfile-phpMyAdmin .'
+                }
+            }
+        }
+
+        stage('Push Docker Images to DockerHub') {
+            steps {
+                script {
+                    // DockerHub'a giriş yapma
+                    withCredentials([usernamePassword(credentialsId: DOCKER_HUB_CREDENTIALS, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                    }
+                    // Docker imajlarını DockerHub'a gönderme
+                    sh 'docker push ${DOCKER_IMAGE_MYSQL}'
+                    sh 'docker push ${DOCKER_IMAGE_PMA}'
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    // Helm ile MySQL ve phpMyAdmin deployment'larını güncelleme
+                    sh 'helm upgrade --install mysql ${CHART_DIR}/mysql-deployment.yaml -f ${CHART_DIR}/values.yaml'
+                    sh 'helm upgrade --install phpmyadmin ${CHART_DIR}/pma-deployment.yaml -f ${CHART_DIR}/values.yaml'
+                }
+            }
+        }
+
+        stage('Clean Up') {
+            steps {
+                // Gereksiz Docker imajlarını temizleme
+                sh 'docker rmi ${DOCKER_IMAGE_MYSQL} ${DOCKER_IMAGE_PMA}'
+            }
+        }
+    }
+
+    post {
+        always {
+            // Sonuçlara göre bildir
+            echo 'Pipeline tamamlandı.'
+        }
+    }
+}

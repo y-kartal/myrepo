@@ -4,7 +4,7 @@ metadata:
   name: phpmyadmin
   namespace: {{ .Values.mysql_ns }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.phpmyadmin.replicaCount }}
   selector:
     matchLabels:
       app: phpmyadmin
@@ -15,14 +15,14 @@ spec:
     spec:
       containers:
         - name: phpmyadmin
-          image: phpmyadmin:5.1
+          image: {{ .Values.phpmyadmin.image }}
           env:
             - name: PMA_ARBITRARY
               value: "1"
             - name: PMA_HOST
-              value: "mysql"
+              value: {{ .Values.phpmyadmin.pmaHost }}
             - name: PMA_PORT
-              value: "3306"
+              value: {{ .Values.phpmyadmin.pmaPort }}
           ports:
             - containerPort: 80
       initContainers:
@@ -30,4 +30,3 @@ spec:
           image: busybox
           command: ['sh', '-c', 'until nc -z mysql:3306; do echo waiting for mysql; sleep 2; done;']
       restartPolicy: Always
-status: {}
