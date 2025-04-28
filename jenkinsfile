@@ -50,8 +50,8 @@ pipeline {
                     sh 'kubectl config view --kubeconfig=${KUBECONFIG}'
 
                     // Helm Chart dizinini kullan, namespace'i sabit ver
-                    sh 'helm upgrade --install mysql ${CHART_DIR} --kubeconfig=${KUBECONFIG} --namespace mysql-test --create-namespace=false'
-                    sh 'helm upgrade --install phpmyadmin ${CHART_DIR} --kubeconfig=${KUBECONFIG} --namespace mysql-test --create-namespace=false'
+                    sh 'helm upgrade --install mysql ${CHART_DIR} --kubeconfig=${KUBECONFIG} --namespace mysql-test --create-namespace'
+                    sh 'helm upgrade --install phpmyadmin ${CHART_DIR} --kubeconfig=${KUBECONFIG} --namespace mysql-test --create-namespace'
                 }
             }
         }
