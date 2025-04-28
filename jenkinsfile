@@ -4,17 +4,17 @@ pipeline {
     environment {
         // DockerHub ve GitHub kimlik bilgileri
         DOCKER_HUB_CREDENTIALS = 'dockerhub-credentials'  // DockerHub kimlik bilgileri ID
-        GITHUB_CREDENTIALS = 'github-credentials'  // GitHub kimlik bilgileri ID
+        GITHUB_CREDENTIALS = 'github-credentials'          // GitHub kimlik bilgileri ID
         DOCKER_IMAGE_MYSQL = "yasinkartal/mysql:latest"
         DOCKER_IMAGE_PMA = "yasinkartal/phpmyadmin:latest"
-        CHART_DIR = './'  // Helm chart dosyanızın yolu
+        CHART_DIR = './'  // Helm chart dosyanızın yolu (tek chart kullanıyoruz)
         KUBECONFIG = '/etc/rancher/k3s/k3s.yaml'  // K3s Kubernetes kubeconfig dosyasının yolu
+        NAMESPACE = 'mysql-test'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // GitHub deposundan kodu çekme
                 checkout scm
             }
         }
@@ -22,9 +22,8 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 script {
-                    // MySQL Docker imajını oluşturma
+                    // Docker imajlarını oluşturma
                     sh 'docker build -t ${DOCKER_IMAGE_MYSQL} -f Dockerfile/Dockerfile-mysql .'
-                    // phpMyAdmin Docker imajını oluşturma
                     sh 'docker build -t ${DOCKER_IMAGE_PMA} -f Dockerfile/Dockerfile-phpMyAdmin .'
                 }
             }
@@ -33,11 +32,10 @@ pipeline {
         stage('Push Docker Images to DockerHub') {
             steps {
                 script {
-                    // DockerHub'a giriş yapma
+                    // DockerHub'a giriş yapıp imajları push etme
                     withCredentials([usernamePassword(credentialsId: DOCKER_HUB_CREDENTIALS, usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
                     }
-                    // Docker imajlarını DockerHub'a gönderme
                     sh 'docker push ${DOCKER_IMAGE_MYSQL}'
                     sh 'docker push ${DOCKER_IMAGE_PMA}'
                 }
@@ -50,26 +48,26 @@ pipeline {
                     sh 'kubectl config view --kubeconfig=${KUBECONFIG}'
 
                     // Namespace kontrol ve yaratma
-                    sh 'kubectl get namespace mysql-test --kubeconfig=${KUBECONFIG} || kubectl create namespace mysql-test --kubeconfig=${KUBECONFIG}'
+                    sh 'kubectl get namespace ${NAMESPACE} --kubeconfig=${KUBECONFIG} || kubectl create namespace ${NAMESPACE} --kubeconfig=${KUBECONFIG}'
 
-                    // Helm Chart dizinini kullan, namespace'i sabit ver
-                    sh 'helm upgrade --install mysql ${CHART_DIR} --kubeconfig=${KUBECONFIG} --namespace mysql-test'
-                    sh 'helm upgrade --install phpmyadmin ${CHART_DIR} --kubeconfig=${KUBECONFIG} --namespace mysql-test'
+                    // Tek helm upgrade --install ile tüm chart'ı deploy et
+                    sh 'helm upgrade --install mysql ${CHART_DIR} --kubeconfig=${KUBECONFIG} --namespace ${NAMESPACE}'
                 }
             }
         }
 
         stage('Clean Up') {
             steps {
-                // Gereksiz Docker imajlarını temizleme
-                sh 'docker rmi ${DOCKER_IMAGE_MYSQL} ${DOCKER_IMAGE_PMA}'
+                script {
+                    // Yerel imajları temizleme
+                    sh 'docker rmi ${DOCKER_IMAGE_MYSQL} ${DOCKER_IMAGE_PMA} || true'
+                }
             }
         }
     }
 
     post {
         always {
-            // Sonuçlara göre bildir
             echo 'Pipeline tamamlandı.'
         }
     }
