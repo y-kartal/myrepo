@@ -49,12 +49,13 @@ pipeline {
                 script {
                     sh 'kubectl config view --kubeconfig=${KUBECONFIG}'
 
-                    // Helm Chart dizinini kullan
-                    sh 'helm upgrade --install mysql ${CHART_DIR} --kubeconfig=${KUBECONFIG}'
-                    sh 'helm upgrade --install phpmyadmin ${CHART_DIR} --kubeconfig=${KUBECONFIG}'
+                    // Helm Chart dizinini kullan, namespace'i sabit ver
+                    sh 'helm upgrade --install mysql ${CHART_DIR} --kubeconfig=${KUBECONFIG} --namespace mysql-test --create-namespace=false'
+                    sh 'helm upgrade --install phpmyadmin ${CHART_DIR} --kubeconfig=${KUBECONFIG} --namespace mysql-test --create-namespace=false'
                 }
             }
         }
+
         stage('Clean Up') {
             steps {
                 // Gereksiz Docker imajlarını temizleme
