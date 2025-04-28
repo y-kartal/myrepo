@@ -18,9 +18,9 @@ spec:
           image: {{ .Values.mysql.image }}
           env:
             - name: MYSQL_DATABASE
-              value: {{ .Values.mysql.mysqlDatabase }}
+              value: "{{ .Values.mysql.mysqlDatabase }}"
             - name: TZ
-              value: {{ .Values.mysql.mysqlTimezone }}
+              value: "{{ .Values.mysql.mysqlTimezone }}"
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -30,10 +30,9 @@ spec:
             - containerPort: 3306
           volumeMounts:
             - name: mysql-data
-              mountPath: "/var/lib/mysql"
+              mountPath: /var/lib/mysql
             - name: mysql-mycnf
               mountPath: /etc/mysql/conf.d/my.cnf
-      restartPolicy: Always
       volumes:
         - name: mysql-data
           persistentVolumeClaim:
@@ -41,3 +40,4 @@ spec:
         - name: mysql-mycnf
           configMap:
             name: mysql-mycnf-config
+      restartPolicy: Always
