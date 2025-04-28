@@ -23,9 +23,9 @@ pipeline {
             steps {
                 script {
                     // MySQL Docker imajını oluşturma
-                    sh 'docker build -t ${DOCKER_IMAGE_MYSQL} -f templates/Dockerfile/Dockerfile-mysql .'
+                    sh 'docker build -t ${DOCKER_IMAGE_MYSQL} -f Dockerfile/Dockerfile-mysql .'
                     // phpMyAdmin Docker imajını oluşturma
-                    sh 'docker build -t ${DOCKER_IMAGE_PMA} -f templates/Dockerfile/Dockerfile-phpMyAdmin .'
+                    sh 'docker build -t ${DOCKER_IMAGE_PMA} -f Dockerfile/Dockerfile-phpMyAdmin .'
                 }
             }
         }
