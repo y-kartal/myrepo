@@ -55,18 +55,22 @@ pipeline {
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Deploy to Remote Kubernetes') {
             steps {
-                echo "Deploying to Kubernetes..."
+                echo "Deploying to remote Kubernetes cluster..."
                 script {
-                    sh 'kubectl config view --kubeconfig=${KUBECONFIG}'
-                    // Namespace kontrolü ve gerekirse oluşturulması
-                    sh 'kubectl get namespace ${NAMESPACE} --kubeconfig=${KUBECONFIG} || kubectl create namespace ${NAMESPACE} --kubeconfig=${KUBECONFIG}'
-                    // Helm ile uygulama deploy
-                    sh 'helm upgrade --install mysql ${CHART_DIR} --kubeconfig=${KUBECONFIG} --namespace ${NAMESPACE}'
+                    withCredentials([file(credentialsId: 'kubeconfig-remote', variable: 'KUBECONFIG_FILE')]) {
+                        sh '''
+                            export KUBECONFIG=$KUBECONFIG_FILE
+                            kubectl config get-contexts
+                            kubectl get namespace ${NAMESPACE} || kubectl create namespace ${NAMESPACE}
+                            helm upgrade --install mysql ${CHART_DIR} --namespace ${NAMESPACE}
+                        '''
+                    }
                 }
             }
         }
+
 
         stage('Clean Up') {
             steps {
