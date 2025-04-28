@@ -1,7 +1,0 @@
-image:
-  repository: myrepo/myapp
-  tag: latest
-
-service:
-  type: ClusterIP
-  port: 5000

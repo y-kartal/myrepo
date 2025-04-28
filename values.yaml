@@ -1,0 +1,2 @@
+mysql_ns : "mysql-test"
+pma_url : "localhost"

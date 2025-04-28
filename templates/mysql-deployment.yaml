@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+  namespace: {{ .Values.mysql_ns }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8
+          env:
+            - name: MYSQL_DATABASE
+              value: test
+            - name: TZ
+              value: Europe/Istanbul
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+          ports:
+          - containerPort: 3306
+          resources: {}
+          volumeMounts:
+            - name: mysql-data
+              mountPath: "/var/lib/mysql"
+            - name: mysql-mycnf
+              mountPath: /etc/mysql/conf.d/my.cnf
+      restartPolicy: Always
+      volumes:
+        - name: mysql-data
+          persistentVolumeClaim:
+            claimName: mysql-data
+        - name: mysql-mycnf
+          configMap:
+            name: mysql-mycnf-config
