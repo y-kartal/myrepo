@@ -8,7 +8,6 @@ pipeline {
         DOCKER_IMAGE_MYSQL = "yasinkartal/mysql:latest"
         DOCKER_IMAGE_PMA = "yasinkartal/phpmyadmin:latest"
         CHART_DIR = './'  // Helm chart dosyanızın yolu
-        KUBECONFIG = '/etc/rancher/k3s/k3s.yaml'  // Kubernetes kubeconfig dosyası
         NAMESPACE = 'mysql-test'  // Kullanılacak namespace
     }
 
@@ -63,7 +62,7 @@ pipeline {
                         sh '''
                             export KUBECONFIG=$KUBECONFIG_FILE
                             kubectl config get-contexts
-                            helm upgrade --install mysql ${CHART_DIR} --namespace ${NAMESPACE} --create-namespace
+                            helm upgrade mysql ${CHART_DIR} --namespace ${NAMESPACE} --create-namespace
                         '''
                     }
                 }
