@@ -47,16 +47,14 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
-                    // Kubernetes'e bağlantıyı kontrol etme
                     sh 'kubectl config view --kubeconfig=${KUBECONFIG}'
 
-                    // Helm ile MySQL ve phpMyAdmin deployment'larını güncelleme
-                    sh 'helm upgrade --install mysql ${CHART_DIR}/mysql-deployment.yaml -f ${CHART_DIR}/values.yaml --kubeconfig=${KUBECONFIG}'
-                    sh 'helm upgrade --install phpmyadmin ${CHART_DIR}/pma-deployment.yaml -f ${CHART_DIR}/values.yaml --kubeconfig=${KUBECONFIG}'
+                    // Helm Chart dizinini kullan
+                    sh 'helm upgrade --install mysql ${CHART_DIR} --kubeconfig=${KUBECONFIG}'
+                    sh 'helm upgrade --install phpmyadmin ${CHART_DIR} --kubeconfig=${KUBECONFIG}'
                 }
             }
         }
-
         stage('Clean Up') {
             steps {
                 // Gereksiz Docker imajlarını temizleme
