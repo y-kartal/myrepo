@@ -3,11 +3,12 @@ pipeline {
 
     environment {
         // DockerHub ve GitHub kimlik bilgileri
-        DOCKER_HUB_CREDENTIALS = 'dockerhub-credentials'
-        GITHUB_CREDENTIALS = 'github-credentials'
+        DOCKER_HUB_CREDENTIALS = 'dockerhub-credentials'  // DockerHub kimlik bilgileri ID
+        GITHUB_CREDENTIALS = 'github-credentials'  // GitHub kimlik bilgileri ID
         DOCKER_IMAGE_MYSQL = "yasinkartal/mysql:latest"
         DOCKER_IMAGE_PMA = "yasinkartal/phpmyadmin:latest"
         CHART_DIR = './'  // Helm chart dosyanızın yolu
+        KUBECONFIG = '/etc/rancher/k3s/k3s.yaml'  // K3s Kubernetes kubeconfig dosyasının yolu
     }
 
     stages {
@@ -46,9 +47,12 @@ pipeline {
         stage('Deploy to Kubernetes') {
             steps {
                 script {
+                    // Kubernetes'e bağlantıyı kontrol etme
+                    sh 'kubectl config view --kubeconfig=${KUBECONFIG}'
+
                     // Helm ile MySQL ve phpMyAdmin deployment'larını güncelleme
-                    sh 'helm upgrade --install mysql ${CHART_DIR}/mysql-deployment.yaml -f ${CHART_DIR}/values.yaml'
-                    sh 'helm upgrade --install phpmyadmin ${CHART_DIR}/pma-deployment.yaml -f ${CHART_DIR}/values.yaml'
+                    sh 'helm upgrade --install mysql ${CHART_DIR}/mysql-deployment.yaml -f ${CHART_DIR}/values.yaml --kubeconfig=${KUBECONFIG}'
+                    sh 'helm upgrade --install phpmyadmin ${CHART_DIR}/pma-deployment.yaml -f ${CHART_DIR}/values.yaml --kubeconfig=${KUBECONFIG}'
                 }
             }
         }
