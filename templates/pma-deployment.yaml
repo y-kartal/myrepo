@@ -17,13 +17,13 @@ spec:
         - name: phpmyadmin
           image: {{ .Values.phpmyadmin.image }}
           env:
-            - name: PMA_ARBITRARY
-              value: "1"
             - name: PMA_HOST
-              value: {{ .Values.phpmyadmin.pmaHost }}
+              value: {{ .Values.phpmyadmin.pmaHost | quote }}
             - name: PMA_PORT
-              value: {{ .Values.phpmyadmin.pmaPort }}
-          ports:
+              value: {{ .Values.phpmyadmin.pmaPort | quote }}
+            - name: PMA_URL
+              value: {{ .Values.phpmyadmin.pmaUrl | quote }}
+
             - containerPort: 80
       initContainers:
         - name: init-mysql-server
