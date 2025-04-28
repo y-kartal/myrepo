@@ -49,9 +49,12 @@ pipeline {
                 script {
                     sh 'kubectl config view --kubeconfig=${KUBECONFIG}'
 
+                    // Namespace kontrol ve yaratma
+                    sh 'kubectl get namespace mysql-test --kubeconfig=${KUBECONFIG} || kubectl create namespace mysql-test --kubeconfig=${KUBECONFIG}'
+
                     // Helm Chart dizinini kullan, namespace'i sabit ver
-                    sh 'helm upgrade --install mysql ${CHART_DIR} --kubeconfig=${KUBECONFIG} --namespace mysql-test --create-namespace'
-                    sh 'helm upgrade --install phpmyadmin ${CHART_DIR} --kubeconfig=${KUBECONFIG} --namespace mysql-test --create-namespace'
+                    sh 'helm upgrade --install mysql ${CHART_DIR} --kubeconfig=${KUBECONFIG} --namespace mysql-test'
+                    sh 'helm upgrade --install phpmyadmin ${CHART_DIR} --kubeconfig=${KUBECONFIG} --namespace mysql-test'
                 }
             }
         }
