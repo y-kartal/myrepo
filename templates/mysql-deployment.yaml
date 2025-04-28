@@ -18,9 +18,9 @@ spec:
           image: {{ .Values.mysql.image }}
           env:
             - name: MYSQL_DATABASE
-              value: "{{ .Values.mysql.mysqlDatabase }}"
+              value: {{ .Values.mysql.mysqlDatabase | quote }}
             - name: TZ
-              value: "{{ .Values.mysql.mysqlTimezone }}"
+              value: {{ .Values.mysql.mysqlTimezone | quote }}
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
