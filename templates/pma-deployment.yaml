@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: phpmyadmin
+  name: phpmyadmin-deployment
   namespace: {{ .Values.mysql_ns }}
 spec:
-  replicas: {{ .Values.phpmyadmin.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
       app: phpmyadmin
@@ -15,18 +15,14 @@ spec:
     spec:
       containers:
         - name: phpmyadmin
-          image: {{ .Values.phpmyadmin.image }}
+          image: yasinkartal/phpmyadmin:latest
           env:
             - name: PMA_HOST
-              value: {{ .Values.phpmyadmin.pmaHost | quote }}
+              value: "mysql"
             - name: PMA_PORT
-              value: {{ .Values.phpmyadmin.pmaPort | quote }}
+              value: "3306"
             - name: PMA_URL
-              value: {{ .Values.phpmyadmin.pmaUrl | quote }}
-
+              value: "localhost"
+          ports:
             - containerPort: 80
-      initContainers:
-        - name: init-mysql-server
-          image: busybox
-          command: ['sh', '-c', 'until nc -z mysql:3306; do echo waiting for mysql; sleep 2; done;']
       restartPolicy: Always
