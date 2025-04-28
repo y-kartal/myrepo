@@ -63,13 +63,13 @@ pipeline {
                         sh '''
                             export KUBECONFIG=$KUBECONFIG_FILE
                             kubectl config get-contexts
-                            kubectl get namespace ${NAMESPACE} || kubectl create namespace ${NAMESPACE}
-                            helm upgrade --install mysql ${CHART_DIR} --namespace ${NAMESPACE}
+                            helm upgrade --install mysql ${CHART_DIR} --namespace ${NAMESPACE} --create-namespace
                         '''
                     }
                 }
             }
         }
+
 
 
         stage('Clean Up') {
