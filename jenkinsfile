@@ -54,7 +54,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Remote Kubernetes') {
+        stage('Deploy to Test Kubernetes') {
             steps {
                 echo "Deploying to remote Kubernetes cluster..."
                 script {
